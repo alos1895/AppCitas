@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">SaludMock</string>
+    <string name="title_activity_login">Inicio de sesión</string>
+    <string name="title_activity_add_appointment">Asignar Cita</string>
+
+    <string name="action_select_doctor">Buscar doctor</string>
+    <string name="action_add_pqrs">Radicar PQRS</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_user_id">Número de identificación</string>
+    <string name="prompt_password">Contraseña</string>
+    <string name="action_sign_in">Iniciar sesión</string>
+    <string name="action_sign_in_short">Iniciar sesión</string>
+    <string name="error_invalid_user_id">Número de identificación inválido</string>
+    <string name="error_field_required">Este campo es requerido</string>
+    <string name="error_network">Conexión de red no disponible</string>
+    <string name="error_invalid_password">Contraseña inválida</string>
+
+    <string name="label_medical_center">Seleccione un centro médico</string>
+    <string name="label_date">Seleccione una fecha</string>
+    <string name="label_time_schedule">Seleccione una jornada laboral</string>
+
+    <string name="message_appointment_succesfully_saved">La cita se asignó correctamente</string>
+    <string name="action_save_appointment">Guardar</string>
+    <string name="error_empty_doctor">Seleccione el turno de algún doctor disponible</string>
+
+    <string-array name="entries_time_schedule">
+        <item>Mañana</item>
+        <item>Tarde</item>
+    </string-array>
+    <string name="title_activity_doctors_schedules">Elige Tu Doctor</string>
+    <string name="message_no_schedules">No se encontraron horarios disponibles</string>
+    <string name="label_availability">Disponibilidad</string>
+    <string name="request_button">Solicitar</string>
+    <string name="message_no_doctor_schedule_picked">Reserva un doctor para tu cita</string>
+
+
+</resources>
