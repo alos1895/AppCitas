@@ -32,5 +32,5 @@ ext{
 
     supportLibraryVersion = '25.4.0'
     gsonVersion = '2.8.0'
-    retrofitVersion = '2.1.0'
+    retrofitVersion = '2.4.0'
 }
