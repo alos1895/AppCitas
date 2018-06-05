@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hermosaprogramacion.blog.saludmock.R;
+import com.hermosaprogramacion.blog.saludmock.data.api.ApiClient;
 import com.hermosaprogramacion.blog.saludmock.data.api.SaludMockApi;
 import com.hermosaprogramacion.blog.saludmock.data.api.model.Affiliate;
 import com.hermosaprogramacion.blog.saludmock.data.api.mapping.ApiError;
@@ -38,9 +39,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Screen de login para afiliados.
  */
 public class LoginActivity extends AppCompatActivity {
+    private static final String TAG = LoginActivity.class.getSimpleName();
 
-    private Retrofit mRestAdapter;
-    private SaludMockApi mSaludMockApi;
+//    private Retrofit mRestAdapter;
+//    private SaludMockApi mSaludMockApi;
 
     // UI references.
     private ImageView mLogoView;
@@ -57,13 +59,13 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         // Crear adaptador Retrofit
-        mRestAdapter = new Retrofit.Builder()
-                .baseUrl(SaludMockApi.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+//        mRestAdapter = new Retrofit.Builder()
+//                .baseUrl(SaludMockApi.BASE_URL)
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
 
         // Crear conexión a la API de SaludMock
-        mSaludMockApi = mRestAdapter.create(SaludMockApi.class);
+//        mSaludMockApi = mRestAdapter.create(SaludMockApi.class);
 
         mLogoView = (ImageView) findViewById(R.id.image_logo);
         mUserIdView = (EditText) findViewById(R.id.user_id);
@@ -146,55 +148,67 @@ public class LoginActivity extends AppCompatActivity {
             // Mostrar el indicador de carga y luego iniciar la petición asíncrona.
             showProgress(true);
 
-            Call<Affiliate> loginCall = mSaludMockApi.login(new LoginBody(userId, password));
-            loginCall.enqueue(new Callback<Affiliate>() {
-                @Override
-                public void onResponse(Call<Affiliate> call, Response<Affiliate> response) {
-                    // Mostrar progreso
-                    showProgress(false);
+            loginRetrofit(userId, password);
 
-                    // Procesar errores
-                    if (!response.isSuccessful()) {
-                        String error = "Ha ocurrido un error. Contacte al administrador";
-                        if (response.errorBody()
-                                .contentType()
-                                .subtype()
-                                .equals("json")) {
-                            ApiError apiError = ApiError.fromResponseBody(response.errorBody());
-
-                            error = apiError.getMessage();
-                            Log.d("LoginActivity", apiError.getDeveloperMessage());
-                        } else {
-                            try {
-                                // Reportar causas de error no relacionado con la API
-                                Log.d("LoginActivity", response.errorBody().string());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        showLoginError(error);
-                        return;
-                    }
-
-                    // Guardar afiliado en preferencias
-                    SessionPrefs.get(LoginActivity.this).saveAffiliate(response.body());
-
-                    // Ir a la citas médicas
-                    showAppointmentsScreen();
-                }
-
-                @Override
-                public void onFailure(Call<Affiliate> call, Throwable t) {
-                    showProgress(false);
-                    showLoginError(t.getMessage());
-                }
-            });
         }
     }
 
+    private void loginRetrofit(String userId, String password){
+        SaludMockApi saludMockApi = ApiClient.getClient().create(SaludMockApi.class);
+        Call<Affiliate> call = saludMockApi.login(new LoginBody(userId, password));
+        Log.d(TAG, "URL Login: " + call.request().url());
+        call.enqueue(new Callback<Affiliate>() {
+            @Override
+            public void onResponse(Call<Affiliate> call, Response<Affiliate> response) {
+                Log.d(TAG, "onResponse: " + response.isSuccessful());
+                // Mostrar progreso
+                showProgress(false);
+
+                // Procesar errores
+                if (!response.isSuccessful()) {
+                    String error = "Ha ocurrido un error. Contacte al administrador";
+                    if (response.errorBody()
+                            .contentType()
+                            .subtype()
+                            .equals("json")) {
+                        ApiError apiError = ApiError.fromResponseBody(response.errorBody());
+
+                        error = apiError.getMessage();
+                        Log.d("LoginActivity", apiError.getDeveloperMessage());
+                    } else {
+                        try {
+                            // Reportar causas de error no relacionado con la API
+                            Log.d("LoginActivity", response.errorBody().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    showLoginError(error);
+                    return;
+                }
+
+                // Guardar afiliado en preferencias
+                SessionPrefs.get(LoginActivity.this).saveAffiliate(response.body());
+
+                // Ir a la citas médicas
+                showAppointmentsScreen();
+
+            }
+
+            @Override
+            public void onFailure(Call<Affiliate> call, Throwable t) {
+                Log.e(TAG, "onFailure: " + t.getMessage());
+                showProgress(false);
+                showLoginError(t.getMessage());
+            }
+        });
+    }
+
+
+
     private boolean isUserIdValid(String userId) {
-        return userId.length() == 10;
+        return userId.length() == 9;
     }
 
     private boolean isPasswordValid(String password) {

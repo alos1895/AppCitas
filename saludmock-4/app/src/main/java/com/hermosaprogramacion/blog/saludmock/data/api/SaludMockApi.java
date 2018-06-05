@@ -27,25 +27,6 @@ import retrofit2.http.QueryMap;
 
 public interface SaludMockApi {
 
-    /*
-    Elige la dirección del localhost según tu caso.
-
-    Si usas un teléfono real, entonces pon la IP de tu PC local. Pero asegúrate que estén bajo la
-    misma red, de lo contrario la conexión será rechazada.
-
-    Luego asignale la variable a HOST para que sea reemplazada en BASE_URL.
-
-    (Nota: todas las conexiones serán rechazadas si no inicias los servicios de Apache y MySQL)
-     */
-
-    String GENYMOTION_LOCALHOST = "10.0.3.2";
-    String AVD_LOCALHOST = "10.0.2.2";
-    String PC_LOCALHOST = "[Pon aquí tu IP de red local]";
-    String HOST = GENYMOTION_LOCALHOST;
-    String PATH = "saludmock/v1/";
-
-    String BASE_URL = String.format("http://%s/%s", HOST, PATH);
-
     @POST("affiliates/login")
     Call<Affiliate> login(@Body LoginBody loginBody);
 

@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hermosaprogramacion.blog.saludmock.R;
+import com.hermosaprogramacion.blog.saludmock.data.api.ApiClient;
 import com.hermosaprogramacion.blog.saludmock.data.api.SaludMockApi;
 import com.hermosaprogramacion.blog.saludmock.data.api.mapping.ApiError;
 import com.hermosaprogramacion.blog.saludmock.data.api.mapping.ApiMessageResponse;
@@ -166,7 +167,7 @@ public class AddAppointmentActivity extends AppCompatActivity
                 .setDateFormat("yyyy-MM-dd HH:mm:ss")
                 .create();
         mRestAdapter = new Retrofit.Builder()
-                .baseUrl(SaludMockApi.BASE_URL)
+                .baseUrl(ApiClient.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

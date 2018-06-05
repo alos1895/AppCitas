@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hermosaprogramacion.blog.saludmock.R;
+import com.hermosaprogramacion.blog.saludmock.data.api.ApiClient;
 import com.hermosaprogramacion.blog.saludmock.data.api.SaludMockApi;
 import com.hermosaprogramacion.blog.saludmock.data.api.mapping.ApiError;
 import com.hermosaprogramacion.blog.saludmock.data.api.mapping.DoctorsAvailabilityRes;
@@ -96,7 +97,7 @@ public class DoctorsSchedulesActivity extends AppCompatActivity {
                 .setDateFormat("yyyy-MM-dd HH:mm:ss")
                 .create();
         mRestAdapter = new Retrofit.Builder()
-                .baseUrl(SaludMockApi.BASE_URL)
+                .baseUrl(ApiClient.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
