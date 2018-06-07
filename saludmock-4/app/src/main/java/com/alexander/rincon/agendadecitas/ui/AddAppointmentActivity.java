@@ -20,14 +20,11 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.alexander.rincon.agendadecitas.R;
 import com.alexander.rincon.agendadecitas.data.api.ApiClient;
-import com.alexander.rincon.agendadecitas.data.api.SaludMockApi;
+import com.alexander.rincon.agendadecitas.data.api.AgendaCitasApi;
 import com.alexander.rincon.agendadecitas.data.api.mapping.ApiError;
 import com.alexander.rincon.agendadecitas.data.api.mapping.ApiMessageResponse;
-import com.alexander.rincon.agendadecitas.data.api.mapping.ApiResponseAppointments;
 import com.alexander.rincon.agendadecitas.data.api.mapping.MedicalCentersRes;
 import com.alexander.rincon.agendadecitas.data.api.mapping.PostAppointmentsBody;
 import com.alexander.rincon.agendadecitas.data.api.model.MedicalCenter;
@@ -43,8 +40,6 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AddAppointmentActivity extends AppCompatActivity
         implements DatePickerDialog.OnDateSetListener {
@@ -230,8 +225,8 @@ public class AddAppointmentActivity extends AppCompatActivity
 
         String token = SessionPrefs.get(this).getToken();
 
-        SaludMockApi saludMockApi = ApiClient.getClient().create(SaludMockApi.class);
-        Call<MedicalCentersRes> call = saludMockApi.getMedicalCenters(token);
+        AgendaCitasApi agendaCitasApi = ApiClient.getClient().create(AgendaCitasApi.class);
+        Call<MedicalCentersRes> call = agendaCitasApi.getMedicalCenters(token);
         call.enqueue(new Callback<MedicalCentersRes>() {
             @Override
             public void onResponse(Call<MedicalCentersRes> call, Response<MedicalCentersRes> response) {
@@ -297,8 +292,8 @@ public class AddAppointmentActivity extends AppCompatActivity
         PostAppointmentsBody body =
                 new PostAppointmentsBody(datetime, service, mDoctorId);
 
-        SaludMockApi saludMockApi = ApiClient.getClient().create(SaludMockApi.class);
-        Call<ApiMessageResponse> call = saludMockApi.createAppointment(token, body);
+        AgendaCitasApi agendaCitasApi = ApiClient.getClient().create(AgendaCitasApi.class);
+        Call<ApiMessageResponse> call = agendaCitasApi.createAppointment(token, body);
         call.enqueue(new Callback<ApiMessageResponse>() {
             @Override
             public void onResponse(Call<ApiMessageResponse> call, Response<ApiMessageResponse> response) {

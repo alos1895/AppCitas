@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 import com.alexander.rincon.agendadecitas.R;
 import com.alexander.rincon.agendadecitas.data.api.ApiClient;
-import com.alexander.rincon.agendadecitas.data.api.SaludMockApi;
+import com.alexander.rincon.agendadecitas.data.api.AgendaCitasApi;
 import com.alexander.rincon.agendadecitas.data.api.model.Affiliate;
 import com.alexander.rincon.agendadecitas.data.api.mapping.ApiError;
 import com.alexander.rincon.agendadecitas.data.api.mapping.LoginBody;
@@ -32,8 +32,6 @@ import java.io.IOException;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Screen de login para afiliados.
@@ -141,8 +139,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginRetrofit(String userId, String password){
-        SaludMockApi saludMockApi = ApiClient.getClient().create(SaludMockApi.class);
-        Call<Affiliate> call = saludMockApi.login(new LoginBody(userId, password));
+        AgendaCitasApi agendaCitasApi = ApiClient.getClient().create(AgendaCitasApi.class);
+        Call<Affiliate> call = agendaCitasApi.login(new LoginBody(userId, password));
         Log.d(TAG, "URL Login: " + call.request().url());
         call.enqueue(new Callback<Affiliate>() {
             @Override

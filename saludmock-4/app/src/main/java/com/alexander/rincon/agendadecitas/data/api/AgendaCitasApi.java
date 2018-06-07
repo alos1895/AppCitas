@@ -22,10 +22,10 @@ import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 
 /**
- * REST service de SaludMock
+ * REST service de AgendaCitas
  */
 
-public interface SaludMockApi {
+public interface AgendaCitasApi {
 
     @POST("affiliates/login")
     Call<Affiliate> login(@Body LoginBody loginBody);

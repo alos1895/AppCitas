@@ -12,13 +12,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.alexander.rincon.agendadecitas.R;
 import com.alexander.rincon.agendadecitas.data.api.ApiClient;
-import com.alexander.rincon.agendadecitas.data.api.SaludMockApi;
+import com.alexander.rincon.agendadecitas.data.api.AgendaCitasApi;
 import com.alexander.rincon.agendadecitas.data.api.mapping.ApiError;
-import com.alexander.rincon.agendadecitas.data.api.mapping.ApiMessageResponse;
 import com.alexander.rincon.agendadecitas.data.api.mapping.DoctorsAvailabilityRes;
 import com.alexander.rincon.agendadecitas.data.api.model.Doctor;
 import com.alexander.rincon.agendadecitas.data.prefs.SessionPrefs;
@@ -34,8 +31,6 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DoctorsSchedulesActivity extends AppCompatActivity {
 
@@ -112,8 +107,8 @@ public class DoctorsSchedulesActivity extends AppCompatActivity {
         parameters.put("medical-center", mMedicalCenterId);
         parameters.put("time-schedule", mTimeSchedule);
 
-        SaludMockApi saludMockApi = ApiClient.getClient().create(SaludMockApi.class);
-        Call<DoctorsAvailabilityRes> call = saludMockApi.getDoctorsSchedules(token, parameters);
+        AgendaCitasApi agendaCitasApi = ApiClient.getClient().create(AgendaCitasApi.class);
+        Call<DoctorsAvailabilityRes> call = agendaCitasApi.getDoctorsSchedules(token, parameters);
         call.enqueue(new Callback<DoctorsAvailabilityRes>() {
             @Override
             public void onResponse(Call<DoctorsAvailabilityRes> call, Response<DoctorsAvailabilityRes> response) {

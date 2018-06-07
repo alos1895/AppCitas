@@ -11,7 +11,7 @@ import com.alexander.rincon.agendadecitas.data.api.model.Affiliate;
  */
 public class SessionPrefs {
 
-    private static final String PREFS_NAME = "SALUDMOCK_PREFS";
+    private static final String PREFS_NAME = "AGENDACITAS_PREFS";
     private static final String PREF_AFFILIATE_ID = "PREF_USER_ID";
     private static final String PREF_AFFILIATE_NAME = "PREF_AFFILIATE_NAME";
     private static final String PREF_AFFILIATE_ADDRESS = "PREF_AFFILIATE_ADDRESS";

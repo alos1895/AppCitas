@@ -17,11 +17,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.alexander.rincon.agendadecitas.R;
 import com.alexander.rincon.agendadecitas.data.api.ApiClient;
-import com.alexander.rincon.agendadecitas.data.api.SaludMockApi;
+import com.alexander.rincon.agendadecitas.data.api.AgendaCitasApi;
 import com.alexander.rincon.agendadecitas.data.api.mapping.ApiError;
 import com.alexander.rincon.agendadecitas.data.api.mapping.ApiMessageResponse;
 import com.alexander.rincon.agendadecitas.data.api.mapping.ApiResponseAppointments;
@@ -37,8 +35,6 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AppointmentsActivity extends AppCompatActivity {
     public static final String TAG = AppointmentsActivity.class.getSimpleName();
@@ -191,8 +187,8 @@ public class AppointmentsActivity extends AppCompatActivity {
         parameters.put("status", status);
         parameters.put("display", "list");
 
-        SaludMockApi saludMockApi = ApiClient.getClient().create(SaludMockApi.class);
-        Call<ApiResponseAppointments> call = saludMockApi.getAppointments(token, parameters);
+        AgendaCitasApi agendaCitasApi = ApiClient.getClient().create(AgendaCitasApi.class);
+        Call<ApiResponseAppointments> call = agendaCitasApi.getAppointments(token, parameters);
         call.enqueue(new Callback<ApiResponseAppointments>() {
             @Override
             public void onResponse(Call<ApiResponseAppointments> call, Response<ApiResponseAppointments> response) {
@@ -256,8 +252,8 @@ public class AppointmentsActivity extends AppCompatActivity {
         statusMap.put("status", "Cancelada");
 
         // Enviar petición
-        SaludMockApi saludMockApi = ApiClient.getClient().create(SaludMockApi.class);
-        Call<ApiMessageResponse> call = saludMockApi.cancelAppointment(appointmentId, token, statusMap);
+        AgendaCitasApi agendaCitasApi = ApiClient.getClient().create(AgendaCitasApi.class);
+        Call<ApiMessageResponse> call = agendaCitasApi.cancelAppointment(appointmentId, token, statusMap);
         call.enqueue(new Callback<ApiMessageResponse>() {
             @Override
             public void onResponse(Call<ApiMessageResponse> call, Response<ApiMessageResponse> response) {
