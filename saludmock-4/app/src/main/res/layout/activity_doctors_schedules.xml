@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.hermosaprogramacion.blog.saludmock.ui.DoctorsSchedulesActivity">
+    tools:context="com.alexander.rincon.agendadecitas.ui.DoctorsSchedulesActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

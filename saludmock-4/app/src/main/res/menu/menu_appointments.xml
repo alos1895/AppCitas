@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.hermosaprogramacion.blog.saludmock.AppointmentsActivity">
+    tools:context="com.alexander.rincon.agendadecitas.AppointmentsActivity">
     <item
         android:id="@+id/action_add_pqrs"
         android:orderInCategory="1"
