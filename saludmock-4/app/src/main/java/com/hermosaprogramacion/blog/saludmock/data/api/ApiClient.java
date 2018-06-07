@@ -7,7 +7,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
-    public static final String BASE_URL = "https://alex-ro96.000webhostapp.com/saludmock/v1/";
+    public static final String BASE_URL = "http://35.224.22.254/saludmock/v1/";
 
     private static Retrofit retrofit = null;
 
@@ -15,7 +15,7 @@ public class ApiClient {
         if (retrofit == null) {
 
             Gson gson = new GsonBuilder()
-                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+                    .setDateFormat("yyyy-MM-dd HH:mm:ss")
                     .create();
 
             retrofit = new Retrofit.Builder()

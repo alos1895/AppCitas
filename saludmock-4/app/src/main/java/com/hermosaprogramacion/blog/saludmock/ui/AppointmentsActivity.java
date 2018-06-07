@@ -41,15 +41,10 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AppointmentsActivity extends AppCompatActivity {
-
     public static final String TAG = AppointmentsActivity.class.getSimpleName();
 
     private static final int STATUS_FILTER_DEFAULT_VALUE = 0;
-
     private static final int REQUEST_ADD_APPOINMENT = 1;
-
-    private Retrofit mRestAdapter;
-    private SaludMockApi mSaludMockApi;
 
     private RecyclerView mAppointmentsList;
     private AppointmentsAdapter mAppointmentsAdapter;
@@ -134,18 +129,6 @@ public class AppointmentsActivity extends AppCompatActivity {
                 loadAppointments(getCurrentState());
             }
         });
-
-        // Crear adaptador Retrofit
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                .create();
-        mRestAdapter = new Retrofit.Builder()
-                .baseUrl(ApiClient.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-
-        // Crear conexión a la API de SaludMock
-        mSaludMockApi = mRestAdapter.create(SaludMockApi.class);
     }
 
     @Override
@@ -159,12 +142,12 @@ public class AppointmentsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadAppointments(getCurrentState());
+//        loadAppointments(getCurrentState());
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_appointments, menu);
+//        getMenuInflater().inflate(R.menu.menu_appointments, menu);
         return true;
     }
 
@@ -198,17 +181,86 @@ public class AppointmentsActivity extends AppCompatActivity {
                 status = "Todas";
         }
 
+        fetchAppointments(token, status);
+
+    }
+
+    private void fetchAppointments(String token, String status){
         // Construir mapa de parámetros
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("status", status);
         parameters.put("display", "list");
 
-        // Realizar petición HTTP
-        Call<ApiResponseAppointments> call = mSaludMockApi.getAppointments(token, parameters);
+        SaludMockApi saludMockApi = ApiClient.getClient().create(SaludMockApi.class);
+        Call<ApiResponseAppointments> call = saludMockApi.getAppointments(token, parameters);
         call.enqueue(new Callback<ApiResponseAppointments>() {
             @Override
-            public void onResponse(Call<ApiResponseAppointments> call,
-                                   Response<ApiResponseAppointments> response) {
+            public void onResponse(Call<ApiResponseAppointments> call, Response<ApiResponseAppointments> response) {
+                if (!response.isSuccessful()) {
+                    // Procesar error de API
+                    String error = "Ha ocurrido un error. Contacte al administrador";
+                    if (response.errorBody()
+                            .contentType()
+                            .subtype()
+                            .equals("json")) {
+                        ApiError apiError = ApiError.fromResponseBody(response.errorBody());
+
+                        error = apiError.getMessage();
+                        Log.d(TAG, apiError.getDeveloperMessage());
+                    } else {
+                        try {
+                            // Reportar causas de error no relacionado con la API
+                            Log.d(TAG, response.errorBody().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    showLoadingIndicator(false);
+                    showErrorMessage(error);
+                    return;
+                }
+
+                List<AppointmentDisplayList> serverAppointments = response.body().getResults();
+                if (serverAppointments.size() > 0) {
+                    // Mostrar lista de citas médicas
+                    showAppointments(serverAppointments);
+                } else {
+                    // Mostrar empty state
+                    showNoAppointments();
+                }
+                showLoadingIndicator(false);
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponseAppointments> call, Throwable t) {
+                showLoadingIndicator(false);
+                Log.e(TAG, "Petición rechazada: " + t.toString());
+                showErrorMessage("Error de comunicación");
+            }
+        });
+
+    }
+
+
+    private void cancelAppointmnent(int appointmentId) {
+        Log.d(TAG, "cancelAppointmnent: " + appointmentId);
+
+        // Mostrar estado de carga
+        showLoadingIndicator(true);
+
+        // Obtener token de usuario
+        String token = SessionPrefs.get(this).getToken();
+
+        // Preparar cuerpo de la petición
+        HashMap<String, String> statusMap = new HashMap<>();
+        statusMap.put("status", "Cancelada");
+
+        // Enviar petición
+        SaludMockApi saludMockApi = ApiClient.getClient().create(SaludMockApi.class);
+        Call<ApiMessageResponse> call = saludMockApi.cancelAppointment(appointmentId, token, statusMap);
+        call.enqueue(new Callback<ApiMessageResponse>() {
+            @Override
+            public void onResponse(Call<ApiMessageResponse> call, Response<ApiMessageResponse> response) {
                 if (!response.isSuccessful()) {
                     // Procesar error de API
                     String error = "Ha ocurrido un error. Contacte al administrador";
@@ -229,88 +281,29 @@ public class AppointmentsActivity extends AppCompatActivity {
                         }
                     }
 
+                    // Ocultar estado de carga
                     showLoadingIndicator(false);
                     showErrorMessage(error);
                     return;
                 }
 
-                List<AppointmentDisplayList> serverAppointments = response.body().getResults();
-
-                if (serverAppointments.size() > 0) {
-                    // Mostrar lista de citas médicas
-                    showAppointments(serverAppointments);
-                } else {
-                    // Mostrar empty state
-                    showNoAppointments();
-                }
-
+                // Cancelación Exitosa
+                Log.d(TAG, response.body().getMessage());
+                loadAppointments(getCurrentState());
+                // Ocultar estado de carga
                 showLoadingIndicator(false);
             }
 
             @Override
-            public void onFailure(Call<ApiResponseAppointments> call, Throwable t) {
+            public void onFailure(Call<ApiMessageResponse> call, Throwable t) {
+                // Ocultar estado de carga
                 showLoadingIndicator(false);
-                Log.d(TAG, "Petición rechazada:" + t.getMessage());
+                Log.d(TAG, "Petición rechazada:" + t.toString());
                 showErrorMessage("Error de comunicación");
             }
         });
-    }
 
-    private void cancelAppointmnent(int appointmentId) {
-        // TODO: Mostrar estado de carga
 
-        // Obtener token de usuario
-        String token = SessionPrefs.get(this).getToken();
-
-        // Preparar cuerpo de la petición
-        HashMap<String, String> statusMap = new HashMap<>();
-        statusMap.put("status", "Cancelada");
-
-        // Enviar petición
-        mSaludMockApi.cancelAppointment(appointmentId, token, statusMap).enqueue(
-                new Callback<ApiMessageResponse>() {
-                    @Override
-                    public void onResponse(Call<ApiMessageResponse> call,
-                                           Response<ApiMessageResponse> response) {
-                        if (!response.isSuccessful()) {
-                            // Procesar error de API
-                            String error = "Ha ocurrido un error. Contacte al administrador";
-                            if (response.errorBody()
-                                    .contentType()
-                                    .subtype()
-                                    .equals("json")) {
-                                ApiError apiError = ApiError.fromResponseBody(response.errorBody());
-
-                                error = apiError.getMessage();
-                                Log.d(TAG, apiError.getDeveloperMessage());
-                            } else {
-                                try {
-                                    // Reportar causas de error no relacionado con la API
-                                    Log.d(TAG, response.errorBody().string());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            // TODO: Ocultar estado de carga
-                            showErrorMessage(error);
-                            return;
-                        }
-
-                        // Cancelación Exitosa
-                        Log.d(TAG, response.body().getMessage());
-                        loadAppointments(getCurrentState());
-                        // TODO: Ocultar estado de carga
-                    }
-
-                    @Override
-                    public void onFailure(Call<ApiMessageResponse> call, Throwable t) {
-                        // TODO: Ocultar estado de carga
-                        Log.d(TAG, "Petición rechazada:" + t.getMessage());
-                        showErrorMessage("Error de comunicación");
-                    }
-                }
-        );
     }
 
     private String getCurrentState() {

@@ -18,6 +18,7 @@ import com.hermosaprogramacion.blog.saludmock.R;
 import com.hermosaprogramacion.blog.saludmock.data.api.ApiClient;
 import com.hermosaprogramacion.blog.saludmock.data.api.SaludMockApi;
 import com.hermosaprogramacion.blog.saludmock.data.api.mapping.ApiError;
+import com.hermosaprogramacion.blog.saludmock.data.api.mapping.ApiMessageResponse;
 import com.hermosaprogramacion.blog.saludmock.data.api.mapping.DoctorsAvailabilityRes;
 import com.hermosaprogramacion.blog.saludmock.data.api.model.Doctor;
 import com.hermosaprogramacion.blog.saludmock.data.prefs.SessionPrefs;
@@ -48,9 +49,6 @@ public class DoctorsSchedulesActivity extends AppCompatActivity {
     private DoctorSchedulesAdapter mListAdapter;
     private ProgressBar mProgress;
     private View mEmptyView;
-
-    private Retrofit mRestAdapter;
-    private SaludMockApi mSaludMockApi;
 
     private Date mDateSchedulePicked;
     private String mMedicalCenterId;
@@ -91,18 +89,6 @@ public class DoctorsSchedulesActivity extends AppCompatActivity {
                 AddAppointmentActivity.EXTRA_DATE_PICKED, -1));
         mMedicalCenterId = intent.getStringExtra(AddAppointmentActivity.EXTRA_MEDICAL_CENTER_ID);
         mTimeSchedule = intent.getStringExtra(AddAppointmentActivity.EXTRA_TIME_SHEDULE_PICKED);
-
-        // Crear adaptador Retrofit
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                .create();
-        mRestAdapter = new Retrofit.Builder()
-                .baseUrl(ApiClient.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-
-        // Crear conexión a la API de SaludMock
-        mSaludMockApi = mRestAdapter.create(SaludMockApi.class);
     }
 
     @Override
@@ -126,49 +112,49 @@ public class DoctorsSchedulesActivity extends AppCompatActivity {
         parameters.put("medical-center", mMedicalCenterId);
         parameters.put("time-schedule", mTimeSchedule);
 
-        mSaludMockApi.getDoctorsSchedules(token, parameters).enqueue(
-                new Callback<DoctorsAvailabilityRes>() {
-                    @Override
-                    public void onResponse(Call<DoctorsAvailabilityRes> call,
-                                           Response<DoctorsAvailabilityRes> response) {
-                        Log.d(TAG, call.request().toString());
-                        if (response.isSuccessful()) {
-                            DoctorsAvailabilityRes res = response.body();
-                            List<Doctor> doctors = res.getResults();
+        SaludMockApi saludMockApi = ApiClient.getClient().create(SaludMockApi.class);
+        Call<DoctorsAvailabilityRes> call = saludMockApi.getDoctorsSchedules(token, parameters);
+        call.enqueue(new Callback<DoctorsAvailabilityRes>() {
+            @Override
+            public void onResponse(Call<DoctorsAvailabilityRes> call, Response<DoctorsAvailabilityRes> response) {
+                Log.d(TAG, call.request().toString());
+                if (response.isSuccessful()) {
+                    DoctorsAvailabilityRes res = response.body();
+                    List<Doctor> doctors = res.getResults();
 
-                            if (doctors.size() > 0) {
-                                showDoctors(doctors);
-                            } else {
-                                showEmptyView();
-                            }
+                    if (doctors.size() > 0) {
+                        showDoctors(doctors);
+                    } else {
+                        showEmptyView();
+                    }
 
-                        } else {
-                            String error = "Ha ocurrido un error. Contacte al administrador";
+                } else {
+                    String error = "Ha ocurrido un error. Contacte al administrador";
 
-                            if (response.errorBody().contentType().subtype().equals("json")) {
-                                ApiError apiError = ApiError.fromResponseBody(response.errorBody());
-                                error = apiError.getMessage();
-                                Log.d(TAG, apiError.getDeveloperMessage());
-                            } else {
-                                try {
-                                    Log.d(TAG, response.errorBody().string());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            showApiError(error);
+                    if (response.errorBody().contentType().subtype().equals("json")) {
+                        ApiError apiError = ApiError.fromResponseBody(response.errorBody());
+                        error = apiError.getMessage();
+                        Log.d(TAG, apiError.getDeveloperMessage());
+                    } else {
+                        try {
+                            Log.d(TAG, response.errorBody().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-
-                        showLoadingIndicator(false);
                     }
 
-                    @Override
-                    public void onFailure(Call<DoctorsAvailabilityRes> call, Throwable t) {
-                        showLoadingIndicator(false);
-                        showApiError(t.getMessage());
-                    }
-                });
+                    showApiError(error);
+                }
+
+                showLoadingIndicator(false);
+            }
+
+            @Override
+            public void onFailure(Call<DoctorsAvailabilityRes> call, Throwable t) {
+                showLoadingIndicator(false);
+                showApiError(t.getMessage());
+            }
+        });
     }
 
     private void showApiError(String error) {

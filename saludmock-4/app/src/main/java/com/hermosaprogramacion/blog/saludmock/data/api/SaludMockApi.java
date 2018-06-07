@@ -31,8 +31,10 @@ public interface SaludMockApi {
     Call<Affiliate> login(@Body LoginBody loginBody);
 
     @GET("appointments")
-    Call<ApiResponseAppointments> getAppointments(@Header("Authorization") String token,
-                                                  @QueryMap Map<String, Object> parameters);
+    Call<ApiResponseAppointments> getAppointments(
+            @Header("Authorization") String token,
+            @QueryMap Map<String, Object> parameters
+    );
 
     @Headers("Content-Type: application/json")
     @PATCH("appointments/{id}")

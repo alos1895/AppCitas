@@ -27,6 +27,7 @@ import com.hermosaprogramacion.blog.saludmock.data.api.ApiClient;
 import com.hermosaprogramacion.blog.saludmock.data.api.SaludMockApi;
 import com.hermosaprogramacion.blog.saludmock.data.api.mapping.ApiError;
 import com.hermosaprogramacion.blog.saludmock.data.api.mapping.ApiMessageResponse;
+import com.hermosaprogramacion.blog.saludmock.data.api.mapping.ApiResponseAppointments;
 import com.hermosaprogramacion.blog.saludmock.data.api.mapping.MedicalCentersRes;
 import com.hermosaprogramacion.blog.saludmock.data.api.mapping.PostAppointmentsBody;
 import com.hermosaprogramacion.blog.saludmock.data.api.model.MedicalCenter;
@@ -77,9 +78,6 @@ public class AddAppointmentActivity extends AppCompatActivity
     private TextView mDoctorName;
     private TextView mDoctorScheduleTime;
     private Button mSearchDoctorButton;
-
-    private Retrofit mRestAdapter;
-    private SaludMockApi mSaludMockApi;
 
     private String mMedicalCenterId;
     private Date mDatePicked;
@@ -162,18 +160,6 @@ public class AddAppointmentActivity extends AppCompatActivity
             }
         });
 
-        // Crear adaptador Retrofit
-        Gson gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd HH:mm:ss")
-                .create();
-        mRestAdapter = new Retrofit.Builder()
-                .baseUrl(ApiClient.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-
-        // Crear conexión a la API de SaludMock
-        mSaludMockApi = mRestAdapter.create(SaludMockApi.class);
-
         loadMedicalCenters();
 
     }
@@ -244,48 +230,48 @@ public class AddAppointmentActivity extends AppCompatActivity
 
         String token = SessionPrefs.get(this).getToken();
 
-        mSaludMockApi.getMedicalCenters(token).enqueue(
-                new Callback<MedicalCentersRes>() {
-                    @Override
-                    public void onResponse(Call<MedicalCentersRes> call,
-                                           Response<MedicalCentersRes> response) {
-                        if (response.isSuccessful()) {
-                            MedicalCentersRes res = response.body();
-                            List<MedicalCenter> medicalCenters = res.getResults();
+        SaludMockApi saludMockApi = ApiClient.getClient().create(SaludMockApi.class);
+        Call<MedicalCentersRes> call = saludMockApi.getMedicalCenters(token);
+        call.enqueue(new Callback<MedicalCentersRes>() {
+            @Override
+            public void onResponse(Call<MedicalCentersRes> call, Response<MedicalCentersRes> response) {
+                if (response.isSuccessful()) {
+                    MedicalCentersRes res = response.body();
+                    List<MedicalCenter> medicalCenters = res.getResults();
 
-                            if (medicalCenters.size() > 0) {
-                                showMedicalCenters(medicalCenters);
-                            } else {
-                                showMedicalCentersError();
-                            }
+                    if (medicalCenters.size() > 0) {
+                        showMedicalCenters(medicalCenters);
+                    } else {
+                        showMedicalCentersError();
+                    }
 
-                        } else {
-                            String error = "Ha ocurrido un error. Contacte al administrador";
+                } else {
+                    String error = "Ha ocurrido un error. Contacte al administrador";
 
-                            if (response.errorBody().contentType().subtype().equals("json")) {
-                                ApiError apiError = ApiError.fromResponseBody(response.errorBody());
-                                error = apiError.getMessage();
-                                Log.d(TAG, apiError.getDeveloperMessage());
-                            } else {
-                                try {
-                                    Log.d(TAG, response.errorBody().string());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            showApiError(error);
+                    if (response.errorBody().contentType().subtype().equals("json")) {
+                        ApiError apiError = ApiError.fromResponseBody(response.errorBody());
+                        error = apiError.getMessage();
+                        Log.d(TAG, apiError.getDeveloperMessage());
+                    } else {
+                        try {
+                            Log.d(TAG, response.errorBody().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-
-                        showLoadingIndicator(false);
                     }
 
-                    @Override
-                    public void onFailure(Call<MedicalCentersRes> call, Throwable t) {
-                        showLoadingIndicator(false);
-                        showApiError(t.getMessage());
-                    }
-                });
+                    showApiError(error);
+                }
+
+                showLoadingIndicator(false);
+            }
+
+            @Override
+            public void onFailure(Call<MedicalCentersRes> call, Throwable t) {
+                showLoadingIndicator(false);
+                showApiError(t.getMessage());
+            }
+        });
     }
 
     private void showMedicalCentersError() {
@@ -311,45 +297,40 @@ public class AddAppointmentActivity extends AppCompatActivity
         PostAppointmentsBody body =
                 new PostAppointmentsBody(datetime, service, mDoctorId);
 
-        mSaludMockApi.createAppointment(token, body).enqueue(
-                new Callback<ApiMessageResponse>() {
-                    @Override
-                    public void onResponse(Call<ApiMessageResponse> call,
-                                           Response<ApiMessageResponse> response) {
+        SaludMockApi saludMockApi = ApiClient.getClient().create(SaludMockApi.class);
+        Call<ApiMessageResponse> call = saludMockApi.createAppointment(token, body);
+        call.enqueue(new Callback<ApiMessageResponse>() {
+            @Override
+            public void onResponse(Call<ApiMessageResponse> call, Response<ApiMessageResponse> response) {
+                if (response.isSuccessful()) {
+                    ApiMessageResponse res = response.body();
+                    Log.d(TAG, res.getMessage());
+                    showAppointmentsUi();
+                } else {
+                    String error = "Ha ocurrido un error. Contacte al administrador";
 
-                        if (response.isSuccessful()) {
-                            ApiMessageResponse res = response.body();
-                            Log.d(TAG, res.getMessage());
-                            showAppointmentsUi();
-
-                        } else {
-                            String error = "Ha ocurrido un error. Contacte al administrador";
-
-                            if (response.errorBody().contentType().subtype().equals("json")) {
-                                ApiError apiError = ApiError.fromResponseBody(response.errorBody());
-                                error = apiError.getMessage();
-                                Log.d(TAG, apiError.getDeveloperMessage());
-                            } else {
-                                try {
-                                    Log.d(TAG, response.errorBody().string());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            showApiError(error);
+                    if (response.errorBody().contentType().subtype().equals("json")) {
+                        ApiError apiError = ApiError.fromResponseBody(response.errorBody());
+                        error = apiError.getMessage();
+                        Log.d(TAG, apiError.getDeveloperMessage());
+                    } else {
+                        try {
+                            Log.d(TAG, response.errorBody().string());
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-
-                        showLoadingIndicator(false);
                     }
+                    showApiError(error);
+                }
+                showLoadingIndicator(false);
+            }
 
-                    @Override
-                    public void onFailure(Call<ApiMessageResponse> call, Throwable t) {
-                        showLoadingIndicator(false);
-                        showApiError(t.getMessage());
-                    }
-                });
-
+            @Override
+            public void onFailure(Call<ApiMessageResponse> call, Throwable t) {
+                showLoadingIndicator(false);
+                showApiError(t.getMessage());
+            }
+        });
     }
 
     private void showAppointmentsUi() {

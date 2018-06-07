@@ -41,9 +41,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-//    private Retrofit mRestAdapter;
-//    private SaludMockApi mSaludMockApi;
-
     // UI references.
     private ImageView mLogoView;
     private EditText mUserIdView;
@@ -57,15 +54,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        // Crear adaptador Retrofit
-//        mRestAdapter = new Retrofit.Builder()
-//                .baseUrl(SaludMockApi.BASE_URL)
-//                .addConverterFactory(GsonConverterFactory.create())
-//                .build();
-
-        // Crear conexión a la API de SaludMock
-//        mSaludMockApi = mRestAdapter.create(SaludMockApi.class);
 
         mLogoView = (ImageView) findViewById(R.id.image_logo);
         mUserIdView = (EditText) findViewById(R.id.user_id);
@@ -149,7 +137,6 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(true);
 
             loginRetrofit(userId, password);
-
         }
     }
 
@@ -189,11 +176,11 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 // Guardar afiliado en preferencias
-                SessionPrefs.get(LoginActivity.this).saveAffiliate(response.body());
+                Affiliate affiliate = response.body();
+                SessionPrefs.get(LoginActivity.this).saveAffiliate(affiliate);
 
                 // Ir a la citas médicas
                 showAppointmentsScreen();
-
             }
 
             @Override
@@ -208,7 +195,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private boolean isUserIdValid(String userId) {
-        return userId.length() == 9;
+        return userId.length() == 10;
     }
 
     private boolean isPasswordValid(String password) {
