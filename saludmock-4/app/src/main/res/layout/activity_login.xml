@@ -23,11 +23,11 @@
 
     <ImageView
         android:id="@+id/image_logo"
-        android:src="@drawable/saludmock_logo"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:src="@drawable/logo_agenda" />
 
     <ScrollView
         android:id="@+id/login_form"
@@ -54,8 +54,8 @@
                     android:inputType="number"
                     android:maxLength="10"
                     android:maxLines="1"
-                    android:textColor="@android:color/white"
-                    android:textColorHint="@android:color/white" />
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textColorHint="@color/colorPrimaryDark" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -76,8 +76,8 @@
                     android:imeOptions="actionUnspecified"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:textColor="@android:color/white"
-                    android:textColorHint="@android:color/white" />
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textColorHint="@color/colorPrimaryDark" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -88,9 +88,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/action_sign_in"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/colorOrange"
                 android:textStyle="bold"
-                app:backgroundTint="@android:color/white" />
+              />
 
         </LinearLayout>
     </ScrollView>
