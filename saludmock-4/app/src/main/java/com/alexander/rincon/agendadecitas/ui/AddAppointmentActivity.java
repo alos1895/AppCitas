@@ -48,10 +48,8 @@ public class AddAppointmentActivity extends AppCompatActivity
 
     public static final int REQUEST_PICK_DOCTOR_SCHEDULE = 1;
 
-    public static final String EXTRA_TIME_SHEDULE_PICKED
-            = "com.hermosaprogramacion.EXTRA_TIME_SCHEDULE_PICKED";
-    public static final String EXTRA_MEDICAL_CENTER_ID
-            = "com.hermosaprogramacion.EXTRA_MEDICAL_CENTER_ID";
+    public static final String EXTRA_TIME_SHEDULE_PICKED = "com.hermosaprogramacion.EXTRA_TIME_SCHEDULE_PICKED";
+    public static final String EXTRA_MEDICAL_CENTER_ID = "com.hermosaprogramacion.EXTRA_MEDICAL_CENTER_ID";
     public static final String EXTRA_DATE_PICKED = "com.hermosaprogramacion.EXTRA_DATE_PICKED";
 
     private static final String UI_VALUE_MORNING = "Mañana";
@@ -79,6 +77,7 @@ public class AddAppointmentActivity extends AppCompatActivity
     private String mTimeSchedule;
     private String mDoctorId;
     private String mTimeSlotPicked;
+    private String mDoctorSpecialty;
 
 
     @Override
@@ -186,6 +185,7 @@ public class AddAppointmentActivity extends AppCompatActivity
             mDoctorId = data.getStringExtra(DoctorsSchedulesActivity.EXTRA_DOCTOR_ID);
             String doctorName = data.getStringExtra(DoctorsSchedulesActivity.EXTRA_DOCTOR_NAME);
             mTimeSlotPicked = data.getStringExtra(DoctorsSchedulesActivity.EXTRA_TIME_SLOT_PICKED);
+            mDoctorSpecialty = data.getStringExtra(DoctorsSchedulesActivity.EXTRA_DOCTOR_SPECIALTY);
             showDoctorScheduleSummary(doctorName, mTimeSlotPicked);
         }
     }
@@ -287,10 +287,10 @@ public class AddAppointmentActivity extends AppCompatActivity
 
         String datetime = DateTimeUtils.joinDateTime(mDatePicked,
                 DateTimeUtils.parseUiTime(mTimeSlotPicked));
-        String service = "Medicina General";
 
+//        String service = "Medicina General";
         PostAppointmentsBody body =
-                new PostAppointmentsBody(datetime, service, mDoctorId);
+                new PostAppointmentsBody(datetime, mDoctorSpecialty, mDoctorId);
 
         AgendaCitasApi agendaCitasApi = ApiClient.getClient().create(AgendaCitasApi.class);
         Call<ApiMessageResponse> call = agendaCitasApi.createAppointment(token, body);

@@ -39,6 +39,7 @@ public class DoctorsSchedulesActivity extends AppCompatActivity {
     public static final String EXTRA_DOCTOR_ID = "com.hermosaprogramacion.EXTRA_DOCTOR_ID";
     public static final String EXTRA_DOCTOR_NAME = "com.hermosaprogramacion.EXTRA_DOCTOR_NAME";
     public static final String EXTRA_TIME_SLOT_PICKED = "com.hermosaprogramacion.EXTRA_TIME_SLOT_PICKED";
+    public static final String EXTRA_DOCTOR_SPECIALTY = "com.hermosaprogramacion.EXTRA_DOCTOR_SPECIALTY";
 
     private RecyclerView mList;
     private DoctorSchedulesAdapter mListAdapter;
@@ -73,6 +74,7 @@ public class DoctorsSchedulesActivity extends AppCompatActivity {
                         responseIntent.putExtra(EXTRA_DOCTOR_ID, bookedDoctor.getId());
                         responseIntent.putExtra(EXTRA_DOCTOR_NAME, bookedDoctor.getName());
                         responseIntent.putExtra(EXTRA_TIME_SLOT_PICKED, timeScheduleSelected);
+                        responseIntent.putExtra(EXTRA_DOCTOR_SPECIALTY, bookedDoctor.getSpecialty());
                         setResult(Activity.RESULT_OK, responseIntent);
                         finish();
                     }
